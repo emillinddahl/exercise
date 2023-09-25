@@ -1,0 +1,5 @@
+.onnx filter=lfs diff=lfs merge=lfs -text
+*.onnx filter=lfs diff=lfs merge=lfs -text
+/Packages/Microsoft.Azure.Kinect.BodyTracking.1.1.2/Microsoft.Azure.Kinect.BodyTracking.1.1.2.nupkg filter=lfs diff=lfs merge=lfs -text
+/Packages/Microsoft.Azure.Kinect.BodyTracking.ONNXRuntime.1.10.0/Microsoft.Azure.Kinect.BodyTracking.ONNXRuntime.1.10.0.nupkg filter=lfs diff=lfs merge=lfs -text
+*.nupkg filter=lfs diff=lfs merge=lfs -text
