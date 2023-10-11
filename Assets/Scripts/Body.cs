@@ -10,6 +10,7 @@ using System.Runtime.Serialization;
 [Serializable]
 public struct Body : ISerializable
 {
+    
     public System.Numerics.Vector3[] JointPositions3D;
 
     public System.Numerics.Vector2[] JointPositions2D;
@@ -116,6 +117,7 @@ public struct Body : ISerializable
         }
 
         uint[] ConfidenceLevel = (uint[])info.GetValue("ConfidenceLevel", typeof(uint[]));
+        
         JointPrecisions = new JointConfidenceLevel[ConfidenceLevel.Length];
         for (int i = 0; i < ConfidenceLevel.Length; i++)
         {

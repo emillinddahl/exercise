@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Kinect.BodyTracking;
 using System.Collections.Generic;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public class Skeleton : MonoBehaviour
@@ -160,6 +161,8 @@ public class Skeleton : MonoBehaviour
 
     // Holds value of the latest received position.
     private Dictionary<JointId, Vector3> currentJointPositions = new Dictionary<JointId, Vector3>();
+    
+    
 
     // Holds value of initial position.
     private Dictionary<BodyParts, Vector3> initialBodyPartPositions = new Dictionary<BodyParts, Vector3>();

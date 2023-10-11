@@ -97,6 +97,7 @@ public class PuppetAvatar : MonoBehaviour
                 {
                     // character root plus translation reading from the kinect, plus the offset from the script public variables
                     finalJoint.position = CharacterRootTransform.position + new Vector3(RootPosition.transform.localPosition.x, RootPosition.transform.localPosition.y + OffsetY, RootPosition.transform.localPosition.z - OffsetZ);
+          
                 }
             }
         }

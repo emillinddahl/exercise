@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Smoother
 {
@@ -20,6 +21,7 @@ public class Smoother
     // Process skeleton position and sends back smoothened or raw based on passed parameter.
     public SkeletonPosition ReceiveNewSensorData(SkeletonPosition newData, bool smoothing)
     {
+        
         // In case list is too big.
         if(rawData.Count > maxSize)
         {
@@ -28,6 +30,7 @@ public class Smoother
 
         // Add new frame data to raw data used for smoothing.
         rawData.Add(newData);
+        
 
         // In case value for smoothing is invalid just return original raw frame.
         if (NumberSmoothingFrames <= 1)
@@ -61,6 +64,9 @@ public class Smoother
         return smoothing && hasEnoughForSmoothing
             ? smoothenedData[smoothenedData.Count - 1] / (float)NumberSmoothingFrames
             : rawData[rawData.Count - 1];
+        
+
+
     }
 
     // Deletes old position data from list which do not have more impact on smoothing algorithm.

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Kinect.BodyTracking;
 using System.Collections.Generic;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 // SkeletonPosition class represents holder for joint positions in one frame.
@@ -16,6 +17,8 @@ public class SkeletonPosition
             var point = body.JointPositions3D[(int)entry];
             Vector3 newDelta = new Vector3(point.X, -point.Y, point.Z);
             currentJointPositions[entry] = referentCameraPosition + newDelta;
+           
+           // Debug.Log(currentJointPositions);
         }
     }
 
@@ -26,6 +29,13 @@ public class SkeletonPosition
     public float Timestamp { get; set; }
 
     public Dictionary<JointId, Vector3> currentJointPositions { get; set; } = new Dictionary<JointId, Vector3>();
+    
+    
+    // Get joint position by joint id.
+    public Vector3 GetJointPosition(JointId jointId)
+    {
+        return currentJointPositions[jointId];
+    }
 
     #region overriden operators
 

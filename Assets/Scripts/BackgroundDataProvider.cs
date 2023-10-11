@@ -7,6 +7,7 @@ public abstract class BackgroundDataProvider:IDisposable
     private BackgroundData m_frameBackgroundData = new BackgroundData();
     private bool m_latest = false;
     object m_lockObj = new object();
+    
     public bool IsRunning { get; set; } = false;
     private CancellationTokenSource _cancellationTokenSource;
     private CancellationToken _token;

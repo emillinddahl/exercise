@@ -42,7 +42,12 @@ public class BackgroundData : ISerializable
         Bodies = (Body[])info.GetValue("Bodies", typeof(Body[]));
         DepthImage = (byte[])info.GetValue("DepthImage", typeof(byte[]));
     }
+    
+    
 
+
+
+    
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         // Writing only relevant data to serialized stream, without the placeholder data

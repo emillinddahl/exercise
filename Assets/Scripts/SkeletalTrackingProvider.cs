@@ -10,6 +10,8 @@ public class SkeletalTrackingProvider : BackgroundDataProvider
 {
     bool readFirstFrame = false;
     TimeSpan initialTimestamp;
+  
+
 
     public SkeletalTrackingProvider(int id) : base(id)
     {
@@ -25,6 +27,7 @@ public class SkeletalTrackingProvider : BackgroundDataProvider
         try
         {
             UnityEngine.Debug.Log("Starting body tracker background thread.");
+          //  UnityEngine.Debug.Log("Is this even printing lol.");
 
             // Buffer allocations.
             BackgroundData currentFrameData = new BackgroundData();
@@ -123,6 +126,7 @@ public class SkeletalTrackingProvider : BackgroundDataProvider
         }
         catch (Exception e)
         {
+            // Catch exception from background thread
             Debug.Log($"catching exception for background thread {e.Message}");
             token.ThrowIfCancellationRequested();
         }
