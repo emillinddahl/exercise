@@ -47,7 +47,9 @@
      <Compile Include="Assets\Scripts\TrackerHandler.cs" />
      <Compile Include="Assets\Scripts\CustomColors.cs" />
      <Compile Include="Assets\Skeleton\Skeleton.cs" />
+     <Compile Include="Assets\Scripts\LowPassFilter.cs" />
      <Compile Include="Assets\Scripts\PuppetAvatar.cs" />
+     <Compile Include="Assets\Scripts\Exercise1.cs" />
      <Compile Include="Assets\Config\ConfigLoader.cs" />
      <Compile Include="Assets\Scripts\SkeletalTrackingProvider.cs" />
      <Compile Include="Assets\Scripts\Filter.cs" />

@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using Microsoft.Azure.Kinect.BodyTracking;
+using UnityEngine.UI;
 
 public class TrackerHandler : MonoBehaviour
 {
@@ -16,7 +17,11 @@ public class TrackerHandler : MonoBehaviour
     private Filter filter; // = new Filter(0.4f, 0.4f);
     private Smoother Smoother;
     private SkeletonPosition Pos;
-    private SkeletonPosition Pos1;
+    //private SkeletonPosition Pos1;
+    private bool hasHit = false;
+    public Text text;
+    public AudioClip audioClip;
+    public AudioSource audioSource;
 
 
     // Start is called before the first frame update
@@ -116,6 +121,8 @@ public class TrackerHandler : MonoBehaviour
         Smoother = new Smoother();
         Pos = new SkeletonPosition();
         //initialise skeleton position
+
+        audioSource = GetComponent<AudioSource>();
     }
 
     public void updateTracker(BackgroundData trackerFrameData)
@@ -144,7 +151,7 @@ public class TrackerHandler : MonoBehaviour
             jointPositions.Add(jointPos);
             // print(s);
             // print the joint from index and appripriate jointId index
-            print("joint " + i + " " + (JointId)i + " " + s.X + " " + s.Y + " " + s.Z + " ");
+          //  print("joint " + i + " " + (JointId)i + " " + s.X + " " + s.Y + " " + s.Z + " ");
         }
 
         if (applyFilter)
@@ -163,13 +170,43 @@ public class TrackerHandler : MonoBehaviour
                 skeleton.JointPositions3D[i].X = jointPos.x;
                 skeleton.JointPositions3D[i].Y = -jointPos.y;
                 skeleton.JointPositions3D[i].Z = jointPos.z;
+                
             }
+            
         }
 
-        //  skeleton.JointPositions3D = Smoother.ReceiveNewSensorData(Pos, true);
+        // get head joint position
+        var pelvisPos = Pos.GetJointPosition(JointId.Pelvis);
+                
+        // get right hand joint position
+        var rightHandPos = Pos.GetJointPosition(JointId.HandRight);
         
+ 
+        var headVsRightHand = pelvisPos.x - rightHandPos.x;
+        // print the head position minus the right hand position in the x axis
+        // print("headPos - rightHandPos " + (headVsRightHand));
+        bool isWithinProximity = headVsRightHand < -0.20f && headVsRightHand > -0.60f;
         
+      //  bool wasWithinproximity = false;
         
+        // if the right hand position x axis vs the head position is less than 2
+        if (isWithinProximity && !hasHit)
+        {
+            print("iisWithinProximity + ");
+            text.text = "Great Job!!";
+         //   audioSource.Play();
+            audioSource.PlayOneShot(audioSource.clip);
+            //isWithinProximity = true;
+            hasHit = true;
+        }
+        else if (!isWithinProximity && hasHit)
+        {
+            isWithinProximity = false;
+            hasHit = false;
+            print("Reset!!");
+            text.text = "";
+        }
+      
         //render skeleton
         renderSkeleton(skeleton, 0);
     }
