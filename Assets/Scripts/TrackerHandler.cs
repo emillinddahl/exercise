@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using Microsoft.Azure.Kinect.BodyTracking;
 using UnityEngine.UI;
+using System.IO;
 
 public class TrackerHandler : MonoBehaviour
 {
@@ -20,13 +21,27 @@ public class TrackerHandler : MonoBehaviour
     //private SkeletonPosition Pos1;
     private bool hasHit = false;
     public Text text;
+    public Text text1;
+    public Text text2;
     public AudioClip audioClip;
     public AudioSource audioSource;
+    public System.Numerics.Vector3 previousNosePos;
+    public System.Numerics.Vector3 previousPelvisPos;
+    public System.Numerics.Vector3 previousPelvisVelocity;
+    public System.Numerics.Vector3 previousNoseVelocity;
+    public float time = 0.0f;
+    public Dictionary<float, float> data = new Dictionary<float, float>();
+    
 
 
     // Start is called before the first frame update
     void Awake()
     {
+        previousPelvisPos = System.Numerics.Vector3.Zero;
+        previousNosePos = System.Numerics.Vector3.Zero;
+        previousPelvisVelocity = System.Numerics.Vector3.Zero;
+        previousNoseVelocity = System.Numerics.Vector3.Zero;
+        
         parentJointMap = new Dictionary<JointId, JointId>();
 
         // pelvis has no parent so set to count
@@ -132,13 +147,9 @@ public class TrackerHandler : MonoBehaviour
 
         // render the closest body
         Body skeleton = trackerFrameData.Bodies[closestBody];
-
-
         
-        //  Pos1 = new SkeletonPosition(skeleton, parentJointMap, transform.position);
-
-        //Smoother.ReceiveNewSensorData(Pos, true);
-
+        
+      
         var jointPositions = new List<Vector3>();
 
         for (var i = 0; i < skeleton.JointPositions3D.Length; i++)
@@ -160,10 +171,10 @@ public class TrackerHandler : MonoBehaviour
             // filter = new Filter(minCutOff, derivateCutOff);
             // filter.InitializeTimestamp();
             // skeleton.JointPositions3D = filter.DoFilter(skeleton.JointPositions3D);
-
+            //Smoother.NumberSmoothingFrames = 3;
             Pos = Smoother.ReceiveNewSensorData(new SkeletonPosition(skeleton, jointIds, Vector3.zero), true);
             
-            // convert Pos skeleton position to Body skeleton
+            // loop through all the joints and assign the filtered values to the skeleton
             for (int i = 0; i < (int)JointId.Count; i++)
             {
                 var jointPos = Pos.GetJointPosition((JointId)i);
@@ -174,28 +185,29 @@ public class TrackerHandler : MonoBehaviour
             }
             
         }
-
-        // get head joint position
+        //this part of the code will calculate if there is a specific amount of length between the head and the right hand
+        //is that the case a message will be displayed. "Great Job!!"
+        
+        // get pelvis joint position
         var pelvisPos = Pos.GetJointPosition(JointId.Pelvis);
-                
+        //get filtered pelvis joint position
+        var pelvisPos2 = skeleton.JointPositions3D[(int)JointId.Pelvis];
+        
         // get right hand joint position
         var rightHandPos = Pos.GetJointPosition(JointId.HandRight);
-        
- 
         var headVsRightHand = pelvisPos.x - rightHandPos.x;
+        
         // print the head position minus the right hand position in the x axis
         // print("headPos - rightHandPos " + (headVsRightHand));
         bool isWithinProximity = headVsRightHand < -0.20f && headVsRightHand > -0.60f;
-        
-      //  bool wasWithinproximity = false;
         
         // if the right hand position x axis vs the head position is less than 2
         if (isWithinProximity && !hasHit)
         {
             print("iisWithinProximity + ");
             text.text = "Great Job!!";
-         //   audioSource.Play();
-            audioSource.PlayOneShot(audioSource.clip);
+        
+          //  audioSource.PlayOneShot(audioSource.clip);
             //isWithinProximity = true;
             hasHit = true;
         }
@@ -206,9 +218,81 @@ public class TrackerHandler : MonoBehaviour
             print("Reset!!");
             text.text = "";
         }
-      
+        
+        
+        //the following code tries to calculate the velocity and acceleration of the pelvis and the nose. 
+        time = Time.time;
+        //get current positions
+       // var currentNosePos = Pos.GetJointPosition(JointId.Nose);
+       // var currentPelvisPos = Pos.GetJointPosition(JointId.Pelvis);
+        
+        
+        var currentNosePos = skeleton.JointPositions3D[(int)JointId.Nose];
+        var currentPelvisPos = skeleton.JointPositions3D[(int)JointId.Pelvis];
+        
+        //calculate the velocity of the pelvis
+        var pelvisVelocity = (currentPelvisPos - previousPelvisPos) / Time.deltaTime;
+        //calculate the velocity of the nose
+        var noseVelocity = (currentNosePos - previousNosePos) / Time.deltaTime;
+
+        var pelvisacc = (currentPelvisPos - previousPelvisPos) / Time.deltaTime / Time.deltaTime;
+        
+        //update the previous pelvis position
+        previousPelvisPos = currentPelvisPos;
+        previousNosePos = currentNosePos;
+        
+        //print out the velocity of pelvis and nose
+        //print("Pelvis Velocity: " + pelvisVelocity);
+        //print("Nose Velocity: " + noseVelocity);
+        text.text = "Pelvis Velocity: " + pelvisVelocity.Length();
+        text1.text = "Nose Velocity: " + noseVelocity.Length();
+        text2.text = "Pelvis Acc: " + pelvisacc.Length();
+     
+        //calculate the acceleration of the pelvis and the nose
+        var pelvisAcceleration = (pelvisVelocity - previousPelvisVelocity) / Time.deltaTime;
+        var noseAcceleration = (noseVelocity - previousNoseVelocity) / Time.deltaTime;
+        
+        previousPelvisVelocity = pelvisVelocity;
+        previousNoseVelocity = noseVelocity;
+        
+        //print out the acceleration of the pelvis and the nose
+        print("Pelvis Acceleration: " + pelvisAcceleration.Length());
+      //  print("Nose Acceleration: " + noseAcceleration);
+        print("other Pelvisacc: " + pelvisacc);
+        print("Pelvis acceleration: " + pelvisacc.Length());
+        
+        data.Add(time, pelvisVelocity.Length());
+       
+        
+        
+        /*
+        //what should be printed into the file?
+        //float time
+        //float pelvisVelocity.magnitude?
+        //float noseVelocity
+        //float pelvisAcceleration
+        //float noseAcceleration
+        string filename = Application.dataPath + "/data.csv";
+        TextWriter tw = new StreamWriter(filename, false);
+        tw.WriteLine("Time, Pelvis Velocity, Nose Velocity, Pelvis Acceleration, Nose Acceleration");
+        tw.Close();
+        */
+       
         //render skeleton
         renderSkeleton(skeleton, 0);
+    }
+    //how to get the data from the dictionary into the csv file?
+    
+    void OnApplicationQuit()
+    {
+        string filename = Application.dataPath + "/data.csv";
+        TextWriter tw = new StreamWriter(filename, false);
+        tw.WriteLine("Time, Pelvis Velocity");
+        foreach (KeyValuePair<float, float> entry in data)
+        {
+            tw.WriteLine(entry.Key + "," + entry.Value);
+        }
+        tw.Close();
     }
 
     int findIndexFromId(BackgroundData frameData, int id)

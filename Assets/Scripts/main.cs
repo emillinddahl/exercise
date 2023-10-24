@@ -38,37 +38,11 @@ public class main : MonoBehaviour
                     m_tracker.GetComponent<TrackerHandler>().updateTracker(m_lastFrameData);
                    
                     //convert numeric vector to unity vector
-                    UnityEngine.Vector3 unityHandVector = new UnityEngine.Vector3(m_lastFrameData.Bodies[0].JointPositions3D[11].X, m_lastFrameData.Bodies[0].JointPositions3D[11].Y, m_lastFrameData.Bodies[0].JointPositions3D[11].Z);
+                   // UnityEngine.Vector3 unityHandVector = new UnityEngine.Vector3(m_lastFrameData.Bodies[0].JointPositions3D[11].X, m_lastFrameData.Bodies[0].JointPositions3D[11].Y, m_lastFrameData.Bodies[0].JointPositions3D[11].Z);
                    //calculate distance between hand and cube 
-                    float distance = Vector3.Distance(unityHandVector, cube.position);
+                   // float distance = Vector3.Distance(unityHandVector, cube.position);
                     
-                    //puppetAvatar.CharacterRootTransform.position = leftHand;
-                  //  bool isWithinProximity = distance < proximityThreshold;
-                    
-                    //set isWithinProximity to true if the distance is less than the proximity threshold
-                    //set isWithinProximity to false if the distance is greater than the proximity threshold
-               /*     if (distance < proximityThreshold)
-                    {
-                        isWithinProximity = true;
-                        print("WITHIN RANGE");
-                    }
-                    else
-                    {
-                        isWithinProximity = false;
-                        print("Outside RANGE");
-                    }
-                    
-                    if (isWithinProximity && !hasHit )
-                    {
-                        print("Exercise 1 YAASSSSS isWithinProximity + " + isWithinProximity);
-                        hasHit = true;
-                    }
-                    else if (!isWithinProximity && hasHit)
-                    {
-                        hasHit = false;
-                        print("Reset!!");
-                    }
-                    */
+                   
                     
                 }
             }

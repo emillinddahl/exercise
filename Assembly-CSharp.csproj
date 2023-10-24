@@ -57,6 +57,7 @@
      <Compile Include="Assets\Scripts\BackgroundDataProvider.cs" />
      <Compile Include="Assets\Scripts\main.cs" />
      <Compile Include="Assets\Skeleton\SkeletonPosition.cs" />
+     <Compile Include="Assets\Scripts\MovementInfo.cs" />
      <Compile Include="Assets\Scripts\SmootherMono.cs" />
      <Compile Include="Assets\Config\Configs.cs" />
      <Compile Include="Assets\Skeleton\CameraFlipper.cs" />
