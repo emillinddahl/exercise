@@ -30,7 +30,16 @@ public class TrackerHandler : MonoBehaviour
     public System.Numerics.Vector3 previousPelvisVelocity;
     public System.Numerics.Vector3 previousNoseVelocity;
     public float time = 0.0f;
-    public Dictionary<float, float> data = new Dictionary<float, float>();
+    public Dictionary<float, float> PelvisVelData = new Dictionary<float, float>();
+    public Dictionary<float, float> PelvisAccData = new Dictionary<float, float>();
+    public Dictionary<float, float> NoseVelData = new Dictionary<float, float>();
+    public Dictionary<float, float> NoseAccData = new Dictionary<float, float>();
+    
+    public Dictionary<float, float> NosePosX = new Dictionary<float, float>();
+    public Dictionary<float, float> NosePosY = new Dictionary<float, float>();
+    public Dictionary<float, float> NosePosZ = new Dictionary<float, float>();
+
+    public Dictionary<float, System.Numerics.Vector3> NosePos = new Dictionary<float, System.Numerics.Vector3>();
     
 
 
@@ -230,12 +239,20 @@ public class TrackerHandler : MonoBehaviour
         var currentNosePos = skeleton.JointPositions3D[(int)JointId.Nose];
         var currentPelvisPos = skeleton.JointPositions3D[(int)JointId.Pelvis];
         
+        NosePosX.Add(time, currentNosePos.X);
+        NosePosY.Add(time, currentNosePos.Y);
+        NosePosZ.Add(time, currentNosePos.Z);
+        
+        NosePos.Add(time, currentNosePos);
+        
+        
         //calculate the velocity of the pelvis
         var pelvisVelocity = (currentPelvisPos - previousPelvisPos) / Time.deltaTime;
         //calculate the velocity of the nose
         var noseVelocity = (currentNosePos - previousNosePos) / Time.deltaTime;
 
         var pelvisacc = (currentPelvisPos - previousPelvisPos) / Time.deltaTime / Time.deltaTime;
+        var noiseacc = (currentNosePos - previousNosePos) / Time.deltaTime / Time.deltaTime;
         
         //update the previous pelvis position
         previousPelvisPos = currentPelvisPos;
@@ -261,8 +278,12 @@ public class TrackerHandler : MonoBehaviour
         print("other Pelvisacc: " + pelvisacc);
         print("Pelvis acceleration: " + pelvisacc.Length());
         
-        data.Add(time, pelvisVelocity.Length());
-       
+        PelvisVelData.Add(time, pelvisVelocity.Length());
+        PelvisAccData.Add(time, pelvisacc.Length()); 
+        NoseVelData.Add(time, noseVelocity.Length()); 
+        NoseAccData.Add(time, noiseacc.Length()); 
+        
+      
         
         
         /*
@@ -285,15 +306,82 @@ public class TrackerHandler : MonoBehaviour
     
     void OnApplicationQuit()
     {
+        PrintDictionary(PelvisVelData, Application.dataPath + "/PelvisVelData.csv", "Time, Pelvis_Velocity");
+        PrintDictionary(PelvisAccData, Application.dataPath + "/PelvisAccData.csv", "Time, Pelvis_Acceleration");
+        PrintDictionary(NoseVelData, Application.dataPath + "/NoseVelData.csv", "Time, Nose_Velocity");
+        PrintDictionary(NoseAccData, Application.dataPath + "/NoseAccData.csv", "Time, Nose_Acceleration");
+        
+        PrintDictionary(NosePosX, Application.dataPath + "/NosePosDataX.csv", "Time, Nose_X");
+        PrintDictionary(NosePosY, Application.dataPath + "/NosePosDataY.csv", "Time, Nose_Y");
+        PrintDictionary(NosePosZ, Application.dataPath + "/NosePosDataZ.csv", "Time, Nose_Z");
+
+        PrintDictionary(NosePos, Application.dataPath + "/NosePosData.csv", "Time, Nose_X, Nose_Y, Nose_Z");
+        
+        
+        
+        print("Times Pelvis velocity exceeded 4: " + CountAboveThreshold(PelvisVelData, 4f));
+        print("Times Pelvis acceleration exceeded 100: " + CountAboveThreshold(PelvisAccData, 100f));
+        print("Times Nose velocity exceeded 4: " + CountAboveThreshold(NoseVelData, 4f));
+        print("Times Nose acceleration exceeded 100: " + CountAboveThreshold(NoseAccData, 100f));
+        
+        /*
         string filename = Application.dataPath + "/data.csv";
         TextWriter tw = new StreamWriter(filename, false);
         tw.WriteLine("Time, Pelvis Velocity");
-        foreach (KeyValuePair<float, float> entry in data)
+        foreach (KeyValuePair<float, float> entry in PelvisVelData)
         {
             tw.WriteLine(entry.Key + "," + entry.Value);
         }
         tw.Close();
+        */
     }
+    
+    //make a function that takes in a dictionary and a threshold value.
+    //Go through the dictionary and check if the value is above the threshold.
+    // count the number of times the value is above the threshold.
+    // return the number of times the value is above the threshold.
+    
+    public int CountAboveThreshold(Dictionary<float, float> dict, float threshold)
+    {
+        int count = 0;
+        foreach (KeyValuePair<float, float> entry in dict)
+        {
+            if (entry.Value > threshold)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+
+    void PrintDictionary(Dictionary<float, float> dict, string filename, string header)
+    {
+        //string _filename = filename;
+        TextWriter tw = new StreamWriter(filename, false);
+        tw.WriteLine(header);
+        foreach (KeyValuePair<float, float> entry in dict)
+        {
+            tw.WriteLine(entry.Key + "," + entry.Value);
+        }
+        tw.Close();
+        
+    }
+    
+    void PrintDictionary(Dictionary<float, System.Numerics.Vector3> dict, string filename, string header)
+    {
+        //string _filename = filename;
+        TextWriter tw = new StreamWriter(filename, false);
+        tw.WriteLine(header);
+        foreach (KeyValuePair<float, System.Numerics.Vector3> entry in dict)
+        {
+            tw.WriteLine(entry.Key + "," + entry.Value.X + "," + entry.Value.Y + "," + entry.Value.Z);
+        }
+        tw.Close();
+        
+    }
+
+
 
     int findIndexFromId(BackgroundData frameData, int id)
     {
